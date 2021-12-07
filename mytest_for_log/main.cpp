@@ -35,7 +35,7 @@ void sync_log_test()
     //初始化
     m_close_log = 0; // 打开日志
     m_log_write = 0; // 同步写入
-    char log_name_postfix[10] = "./syncLog";
+    char log_name_postfix[20] = "./syncLog.log";
     log_init(log_name_postfix);
 
     LOG_ERROR("-- start!");
@@ -57,7 +57,7 @@ void asyn_log_test()
     //初始化
     m_close_log = 0; // 打开日志
     m_log_write = 1; // 异步写入
-    char log_name_postfix[10] = "./asynLog";
+    char log_name_postfix[20] = "./asynLog.log";
     log_init(log_name_postfix);
 
     LOG_ERROR("-- start!");

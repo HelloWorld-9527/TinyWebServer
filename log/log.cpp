@@ -14,6 +14,20 @@ Log::Log()
 
 Log::~Log()
 {
+    /*
+     * 问题:异步模式下，当主线程准备退出，日志队列中还有日志没有输出到文件，会造成丢失。
+     * Z:添加代码，当主线程准备退出时，即日志单例对象析构时，等待日志队列将剩余日志处理，再析构。
+     * 
+     * TODO:
+     * 2021年12月8日00:06:52  这里目前还是会存在等待日志队列，因为在日志线程时的while没退出，估计得添加started_, running_
+     */
+    if (m_is_async) {
+        while (m_log_queue->empty()) {
+            pthread_join(tid_, nullptr);
+            break;
+        }
+    }
+
     if (m_fp != NULL)
     {
         fclose(m_fp);
@@ -27,9 +41,8 @@ bool Log::init(const char *file_name, int close_log, int log_buf_size, int split
     {
         m_is_async = true;
         m_log_queue = new block_queue<string>(max_queue_size);
-        pthread_t tid;
         //flush_log_thread为回调函数,这里表示创建线程异步写日志
-        pthread_create(&tid, NULL, flush_log_thread, NULL);
+        pthread_create(&tid_, NULL, flush_log_thread, NULL);
     }
     
     m_close_log = close_log;
